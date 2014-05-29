@@ -20,13 +20,13 @@ testing_samples = samples(testing_samples_idx);
 training_samples_idx = ~testing_samples_idx;
 training_samples = samples(training_samples_idx);
 
-[testing_label_skeletons] = Get_Labels(testing_samples);
 [training_label_skeletons] = Get_Labels(training_samples);
+[testing_label_skeletons] = Get_Labels(testing_samples);
 
 % compute codebook
 temp_filename = sprintf('codebook_tstsbj_%02d.mat', subject_idx);
 temp_filename2 = sprintf('Quantizedlabel_Data%02d.mat', subject_idx);
-codebook_filename = fullfile(output_path, temp_filename);
+codebook_filename = fullfile(output_label_path, temp_filename);
 %Quantized_Data_filename = fullfile(Quantized_path, 'Quantized_Data.mat');
 Quantized_label_filename = fullfile(Quantized_labels_path, temp_filename2);
 if  prompt_ans == 'n'
@@ -49,8 +49,10 @@ else
     training_samples = Quantized_Data.training_label_skeletons;
     testing_samples = Quantized_Data.testing_label_skeletons;
 end
+
+%-------------------------------------------------- Comment for codebooks
 codebook_sizes = cellfun(@(x) size(x,1), centers);
-%---------------
+%----------------
 [training_label_skeletons.quantized_skeleton] = training_samples.quantized_skeleton;
 [testing_label_skeletons.quantized_skeleton] = testing_samples.quantized_skeleton;
 %----------------
@@ -71,8 +73,8 @@ models = rbpTrainLinearSVMSimpleAction(Separated_training_skeletons, simple_acti
 
 %testing
 
-[scores CM pr] = rbpTestLinearSVMSimpleAction(Separated_testing_skeletons, models, tagmode);
-%toc;
+[scores CM pr] = rbpTestLinearSVMSimpleAction(Separated_testing_skeletons, models, tagmode, simple_action_name_list);
+toc;
 
 
 

@@ -1,12 +1,20 @@
-function [scores CM pr] = rbpTestLinearSVMSimpleAction(testing_samples, models, tagmode, testing_samples_separated)
+function [scores CM pr] = rbpTestLinearSVMSimpleAction(testing_samples, models, tagmode, simple_action_name_list)
 
 number_parts = size(struct2cell(testing_samples));
 idx = {'topleft', 'botleft', 'topright', 'botright'};
 
+handsActions = simple_action_name_list;
+feetsActions = simple_action_name_list;
+handInd = [1 4 9 19 20 25];
+feetsInd = [2 3 5:7 10 11 13:18 21 22 24 26];
+handsActions(handInd) = [];
+feetsActions(feetsInd) = [];
+
 for i = 1 : number_parts(1,1)
     
+    
     number_samples = numel(testing_samples.(idx{i}));
-    size_classes = size(models);
+    size_classes = size(models.(idx{i}));
     number_classes = size_classes(1,2);
     
     % features are concatenated bag-of-poses from each body part
@@ -23,7 +31,7 @@ for i = 1 : number_parts(1,1)
                 class_labels(testing_labels==1) = cidx;
             else
                 for j = 1:number_samples
-                    samples_current_class_idx(j) =  ismember(1,strcmp(testing_samples.(idx{i})(j).action,  models(cidx).(idx{i}).class_name));
+                    samples_current_class_idx(j) =  ismember(1,strcmp(testing_samples.(idx{i})(j).action,  models.(idx{i})(cidx).class_name));
                 end
                 testing_labels = double(samples_current_class_idx)';
                 class_labels (samples_current_class_idx) = cidx;
@@ -34,8 +42,8 @@ for i = 1 : number_parts(1,1)
         end
         % apply linear SVM
         [pl, acc, dv] = ...
-            svmpredict(testing_labels, testing_features, models(cidx).(idx{i}).svm_model);
-        if models(cidx).(idx{i}).svm_model.Label(1)==0
+            svmpredict(testing_labels, testing_features, models.(idx{i})(cidx).svm_model);
+        if models.(idx{i})(cidx).svm_model.Label(1)==0
             dv = -dv;
         end
         scores(:, cidx) = dv;
@@ -43,7 +51,7 @@ for i = 1 : number_parts(1,1)
         % compute prec-rec
         %figure(1000+cidx);
         [precision recall ap thr] = precrec2(testing_labels == 1, dv, 1);
-        title(models(cidx).(idx{i}).class_name);
+        title(models.(idx{i})(cidx).class_name);
         pr(cidx).precision = precision;
         pr(cidx).recall = recall;
         pr(cidx).ap = ap;
@@ -57,10 +65,11 @@ for i = 1 : number_parts(1,1)
         %title(models(cidx).class_name);
     end
     
-    if isfield(testing_samples.(idx{i}), 'bop')
-        [val,indx.(idx{i})] = max(scores, [] ,2);
-        CM.(idx{i}) = confMatrix(class_labels, indx.(idx{i}), number_classes);
-    else
-        CM.(idx{i}) = [];
-    end
+%     if isfield(testing_samples.(idx{i}), 'bop')
+%         [val,indx.(idx{i})] = max(scores, [] ,2);
+%         CM.(idx{i}) = confMatrix(class_labels, indx.(idx{i}), number_classes);
+%     else
+%         CM.(idx{i}) = [];
+%     end
+       CM = 0;
 end

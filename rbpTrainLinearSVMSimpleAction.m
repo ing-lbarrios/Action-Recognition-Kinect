@@ -12,30 +12,58 @@ end
 %    simple_action_name_list = unique({training_samples(:).class_name});
 %end
 
+handsActions = simple_action_name_list;
+feetsActions = simple_action_name_list;
+handInd = [1 4 9 19 20 25];
+feetsInd = [2 3 5:7 10 11 13:18 21 22 24 26];
+notHandActions = handsActions(handInd);
+notFeetActions = handsActions(feetsInd);
+handsActions(handInd) = [];
+feetsActions(feetsInd) = [];
+skeletonToUse = training_samples;
+actionsListed = [];
+number_stamps = numel(training_samples.topleft);
+
+for i=1:number_stamps
+    actionsListed = [actionsListed; {training_samples.topleft(i).action}];
+end
+
+ishand = ismember(actionsListed, notHandActions);
+skeletonToUse.topleft(ishand==1) = [];
+skeletonToUse.topright(ishand==1) = [];
+isfeet = ismember(actionsListed, notFeetActions);
+skeletonToUse.botleft(isfeet==1) = [];
+skeletonToUse.botright(isfeet==1) = [];
+
 number_parts = size(struct2cell(training_samples));
 
 idx = {'topleft', 'botleft', 'topright', 'botright'};
 
 for i = 1 : number_parts(1,1)
+    if (i == 1)||(i == 3)
+    class_to_use = handsActions;
+    else
+    class_to_use = feetsActions;    
+    end
     
-    number_samples = numel(training_samples.(idx{i}));
-    number_classes = numel(simple_action_name_list);
+    number_samples = numel(skeletonToUse.(idx{i}));
+    number_classes = numel(class_to_use);
     
     % features are concatenated bag-of-poses from each body part
     %training_features = cell2mat(arrayfun(@(x) cell2mat(x.bop), ...
     %    training_samples, 'UniformOutput', false)');
     
-    models(number_classes).(idx{i}).svm_model = [];
-    models(number_classes).(idx{i}).class_name = [];
+    models.(idx{i})(number_classes).svm_model = [];
+    models.(idx{i})(number_classes).class_name = [];
     
     for cidx = 1:number_classes
         clearvars training_labels;
         %[related cut_training_samples] = findRelated(simple_action_name_list(cidx), training_samples);
-        training_features = cell2mat({training_samples.(idx{i}).bop}');
+        training_features = cell2mat({skeletonToUse.(idx{i}).bop}');
         
         if tagmode
             % get binary labels for this tag
-            all_active_tags = cell2mat({training_samples(:).active_tags}');
+            all_active_tags = cell2mat({skeletonToUse(:).active_tags}');
             training_labels = all_active_tags(:,cidx);
         else
             % get binary labels for this class
@@ -43,7 +71,7 @@ for i = 1 : number_parts(1,1)
             %    simple_action_name_list{cidx}))';
             
             for j = 1:number_samples
-                training_labels(j) =  ismember(1,strcmp(training_samples.(idx{i})(j).action, simple_action_name_list{cidx}));
+                training_labels(j) =  ismember(1,strcmp(skeletonToUse.(idx{i})(j).action, class_to_use{cidx}));
             end
         end
         
@@ -54,8 +82,8 @@ for i = 1 : number_parts(1,1)
         svm_string = sprintf('-t 0 -c %d -q -w1 %f', svm_c, svm_w);
         svm_model = svmtrain(training_labels, training_features, svm_string);
         
-        models(cidx).(idx{i}).svm_model = svm_model;
-        models(cidx).(idx{i}).class_name = simple_action_name_list{cidx};
+        models.(idx{i})(cidx).svm_model = svm_model;
+        models.(idx{i})(cidx).class_name = class_to_use{cidx};
         
         % compute accuracy in training
         [pl, acc, dv] =  svmpredict(training_labels, training_features, ...

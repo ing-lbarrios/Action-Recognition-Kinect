@@ -17,10 +17,10 @@ ActionTrain = cellfun(@(X) {X(1,:)}, {label_training.action});
 
 Labels = {'label', 'bop', 'action'};
 
-tLstructTrain = {topLeftLabel{:}; topLeftBop{:}; ActionTrain{:}}'; tLstructTrain(cellfun(@(x) ~x(1),tLstructTrain(:,1)),:) = [];%{'Idle'};
-bLstructTrain = {botLeftLabel{:}; botLeftBop{:}; ActionTrain{:}}'; bLstructTrain(cellfun(@(x) ~x(1),bLstructTrain(:,1)),:) = [];%{'Idle'};
-tRstructTrain = {topRightLabel{:}; topRightBop{:}; ActionTrain{:}}'; tRstructTrain(cellfun(@(x) ~x(1),tRstructTrain(:,1)),:) = [];%{'Idle'};
-bRstructTrain = {botRightLabel{:}; botRightBop{:}; ActionTrain{:}}'; bRstructTrain(cellfun(@(x) ~x(1),bRstructTrain(:,1)),:) = [];%{'Idle'};
+tLstructTrain = {topLeftLabel{:}; topLeftBop{:}; ActionTrain{:}}'; %tLstructTrain(cellfun(@(x) ~x(1),tLstructTrain(:,1)),:) = [];%{'Idle'};
+bLstructTrain = {botLeftLabel{:}; botLeftBop{:}; ActionTrain{:}}'; %bLstructTrain(cellfun(@(x) ~x(1),bLstructTrain(:,1)),:) = [];%{'Idle'};
+tRstructTrain = {topRightLabel{:}; topRightBop{:}; ActionTrain{:}}'; %tRstructTrain(cellfun(@(x) ~x(1),tRstructTrain(:,1)),:) = [];%{'Idle'};
+bRstructTrain = {botRightLabel{:}; botRightBop{:}; ActionTrain{:}}'; %bRstructTrain(cellfun(@(x) ~x(1),bRstructTrain(:,1)),:) = [];%{'Idle'};
 
 training.topleft = cell2struct(tLstructTrain, Labels, 2);
 training.botleft = cell2struct(bLstructTrain, Labels, 2);
