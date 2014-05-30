@@ -49,14 +49,13 @@ else
     training_samples = Quantized_Data.training_label_skeletons;
     testing_samples = Quantized_Data.testing_label_skeletons;
 end
-
 %-------------------------------------------------- Comment for codebooks
 codebook_sizes = cellfun(@(x) size(x,1), centers);
 %----------------
 [training_label_skeletons.quantized_skeleton] = training_samples.quantized_skeleton;
 [testing_label_skeletons.quantized_skeleton] = testing_samples.quantized_skeleton;
 %----------------
-%tic;
+tic;
 %run training
 disp('Training...');                    
 % training
@@ -75,6 +74,5 @@ models = rbpTrainLinearSVMSimpleAction(Separated_training_skeletons, simple_acti
 
 [scores CM pr] = rbpTestLinearSVMSimpleAction(Separated_testing_skeletons, models, tagmode, simple_action_name_list);
 toc;
-
 
 
