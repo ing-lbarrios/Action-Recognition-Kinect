@@ -15,7 +15,8 @@ while ((prompt_ans ~='y')&&(prompt_ans ~='n'))
 end
 
 if ~exist('VideoData_Path','var') || isempty(dataset_path)
-    VideoData_Path = 'C:\Users\usuario\Videos\Video_Data\';
+    %VideoData_Path = 'C:\Users\usuario\Videos\Video_Data\';
+    VideoData_Path = 'D:\LuisBarrios\Video_Data';
 end
 
 Recorded_video = fullfile(VideoData_Path, 'VideoData.mat');
@@ -25,11 +26,12 @@ if prompt_ans == 'n'
     disp('Generating new Video Data. Hold...');
     
     if ~exist('dataset_path','var') || isempty(dataset_path)
-        dataset_path = 'C:\Users\usuario\Videos\Dataset 1.0\';
+        %dataset_path = 'C:\Users\usuario\Videos\Dataset 1.0\';
+        dataset_path = 'D:\LuisBarrios\Dataset';
     end
     
     if ~exist('clean_commas_flag', 'var') || isempty(clean_commas_flag)
-        clean_commas_flag = 0;
+        clean_commas_flag = 1;
     end
     
     class_folders = dir(dataset_path);
@@ -118,7 +120,7 @@ if prompt_ans == 'n'
                 
                 %load label data
                 label_filename = fullfile(samples_path, ...
-                    sample_folders(sample_idx).name, 'action_stamp.txt');
+                    sample_folders(sample_idx).name, 'action_stamp.txt')
                 
                 label_raw_data = fopen (label_filename);
                 label_line = fgetl (label_raw_data);
